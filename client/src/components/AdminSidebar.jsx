@@ -1,14 +1,14 @@
 import { NavLink } from "react-router-dom";
 import {
   FaHome,
-  FaTasks,
   FaHistory,
+  FaTasks,
   FaTimes,
 } from "react-icons/fa";
 
 import { useSidebar } from "../context/SidebarContext";
 
-function Sidebar() {
+function AdminSidebar() {
   const { sidebarOpen, toggleSidebar } = useSidebar();
 
   if (!sidebarOpen) {
@@ -16,15 +16,16 @@ function Sidebar() {
   }
 
   return (
-    <aside className="w-72 min-h-screen bg-slate-900 text-white p-7 shrink-0">
+    <aside className="w-72 bg-[#0f172a] text-white min-h-screen p-6 shrink-0">
 
-      {/* HEADER */}
-      <div className="flex items-center justify-between mb-12">
+      {/* SIDEBAR HEADER */}
+      <div className="flex items-center justify-between mb-10">
 
         <h2 className="text-2xl font-bold">
-          Menu
+          Admin Menu
         </h2>
 
+        {/* CLOSE SIDEBAR */}
         <button
           onClick={toggleSidebar}
           className="text-gray-300 hover:text-white text-xl"
@@ -35,55 +36,62 @@ function Sidebar() {
 
       </div>
 
+      {/* MENU */}
       <nav className="space-y-3">
 
+        {/* ADMIN DASHBOARD */}
         <NavLink
-          to="/dashboard"
+          to="/admin"
           end
           className={({ isActive }) =>
-            `flex items-center gap-4 px-5 py-4 rounded-lg ${
+            `flex items-center gap-4 px-4 py-3 rounded-lg transition ${
               isActive
                 ? "bg-blue-600"
-                : "hover:bg-slate-800"
+                : "hover:bg-gray-800"
             }`
           }
         >
           <FaHome />
-          Dashboard
+          <span>Admin Dashboard</span>
         </NavLink>
 
+        {/* TASKS */}
         <NavLink
-          to="/tasks"
+          to="/admin/tasks"
           className={({ isActive }) =>
-            `flex items-center gap-4 px-5 py-4 rounded-lg ${
+            `flex items-center gap-4 px-4 py-3 rounded-lg transition ${
               isActive
                 ? "bg-blue-600"
-                : "hover:bg-slate-800"
+                : "hover:bg-gray-800"
             }`
           }
         >
           <FaTasks />
-          Tasks
+          <span>Tasks</span>
         </NavLink>
 
+        {/* ACTIVITY LOGS */}
         <NavLink
-          to="/activity"
+          to="/admin/activity"
           className={({ isActive }) =>
-            `flex items-center gap-4 px-5 py-4 rounded-lg ${
+            `flex items-center gap-4 px-4 py-3 rounded-lg transition ${
               isActive
                 ? "bg-blue-600"
-                : "hover:bg-slate-800"
+                : "hover:bg-gray-800"
             }`
           }
         >
           <FaHistory />
-          Activity Logs
+          <span>Activity Logs</span>
         </NavLink>
 
       </nav>
+
+      {/* SMALL EXCEL ICON */}
+      
 
     </aside>
   );
 }
 
-export default Sidebar;
+export default AdminSidebar;

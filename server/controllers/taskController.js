@@ -1,18 +1,30 @@
 import Task from "../models/Task.js";
 import mongoose from "mongoose";
+import ActivityLog from "../models/ActivityLog.js";
 
 export const createTask = async (req, res) => {
   try {
     const { title, description, priority, status, dueDate } = req.body;
+    let completedAt = null;
+    if (status === "Completed") {
+      completedAt = new Date();
+    }
 
     const task = await Task.create({
-      title,
-      description,
-      priority,
-      status,
-      dueDate,
-      createdBy: req.user.id,
-    });
+  title,
+  description,
+  priority,
+  status,
+  dueDate,
+  completedAt,
+  createdBy: req.user.id,
+});
+    await ActivityLog.create({
+  user: req.user.id,
+  action: "Created task",
+  task: task._id,
+  taskTitle: task.title,
+});
 
     res.status(201).json({
       success: true,
@@ -72,6 +84,8 @@ export const getTaskById = async (req, res) => {
       });
     }
 
+    
+
     res.status(200).json({
       success: true,
       task,
@@ -88,35 +102,53 @@ export const getTaskById = async (req, res) => {
 // Update Task
 export const updateTask = async (req, res) => {
   try {
+
+    const updateData = { ...req.body };
+
+    if (req.body.status === "Completed") {
+      updateData.completedAt = new Date();
+    }
+
+    if (req.body.status !== "Completed") {
+      updateData.completedAt = null;
+    }
+
     const task = await Task.findOneAndUpdate(
       {
         _id: req.params.id,
-        createdBy: req.user.id
+        createdBy: req.user.id,
       },
-      req.body,
+      updateData,
       {
         new: true,
-        runValidators: true
+        runValidators: true,
       }
     );
 
     if (!task) {
       return res.status(404).json({
         success: false,
-        message: "Task not found"
+        message: "Task not found",
       });
     }
+
+    await ActivityLog.create({
+      user: req.user.id,
+      action: "Updated task",
+      task: task._id,
+      taskTitle: task.title,
+    });
 
     res.status(200).json({
       success: true,
       message: "Task updated successfully",
-      task
+      task,
     });
 
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -135,6 +167,13 @@ export const deleteTask = async (req, res) => {
         message: "Task not found",
       });
     }
+
+    await ActivityLog.create({
+  user: req.user.id,
+  action: "Deleted task",
+  task: task._id,
+  taskTitle: task.title,
+});
 
     res.status(200).json({
       success: true,
