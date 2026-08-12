@@ -1,71 +1,127 @@
-# TaskFlow
+# TaskFlow - Task Management System
 
-TaskFlow is a full-stack task management application built using the MERN stack. It allows users to securely manage their tasks with authentication, task filtering, search, dashboard statistics, and profile management.
+TaskFlow is a full-stack task management application built using the MERN stack. It provides secure user authentication, task management, activity tracking, and an admin dashboard for managing users and tasks.
 
-## Features
+## 🚀 Live Project
+
+Coming soon
+
+## 📌 GitHub Repository
+
+https://github.com/yuvrajsingh2002/TaskFlow
+
+---
+
+# ✨ Features
+
+## 👤 User Features
 
 - User Signup and Login
-- JWT-based Authentication
-- Protected Routes
-- Create Tasks
-- Update Tasks
-- Delete Tasks
-- Search Tasks
-- Filter Tasks by Status
-- Filter Tasks by Priority
-- Dashboard Task Statistics
-- User Profile
-- Change Password
-- Logout
-- User-specific Tasks
-- Responsive UI
+- JWT-based authentication
+- Protected routes
+- User dashboard
+- Create tasks
+- View tasks
+- Update tasks
+- Delete tasks
+- Task details page
+- Task status management
+- Task priority management
+- Due date management
+- Completed date tracking
+- Search tasks
+- Filter tasks by status
+- Filter tasks by priority
+- Task pagination
+- User profile
+- Change password
+- Activity logs
+- Logout functionality
 
-## Tech Stack
+## 👨‍💼 Admin Features
 
-### Frontend
+- Secure admin authentication
+- Admin dashboard
+- View all registered users
+- View individual user details
+- View user's tasks
+- View user's activity history
+- Admin task management
+- Create admin tasks
+- Update admin tasks
+- Delete admin tasks
+- Search tasks
+- Filter tasks by status
+- Filter tasks by priority
+- Task pagination
+- Admin task details
+- Admin profile
+- Change admin password
+- Admin activity logs
+- Track admin task activities
+
+---
+
+# 🛠️ Tech Stack
+
+## Frontend
 
 - React.js
-- Vite
-- React Router
-- Axios
+- JavaScript
+- HTML5
+- CSS3
 - Tailwind CSS
+- React Router DOM
+- Axios
 - React Icons
 - React Hot Toast
 
-### Backend
+## Backend
 
 - Node.js
 - Express.js
 - MongoDB
 - Mongoose
 - JWT
-- bcryptjs
-- CORS
-- dotenv
+- bcrypt
+- REST APIs
 
-## Project Structure
+## Development Tools
+
+- Git
+- GitHub
+- VS Code
+- Thunder Client
+- Nodemon
+
+---
+
+# 🏗️ Project Architecture
+
+TaskFlow follows a client-server architecture.
 
 ```text
-TaskFlow/
+TaskFlow
 │
-├── client/
-│   ├── public/
-│   └── src/
-│       ├── components/
-│       ├── context/
-│       ├── pages/
-│       ├── services/
-│       ├── App.jsx
-│       └── main.jsx
+├── client
+│   ├── src
+│   │   ├── components
+│   │   ├── context
+│   │   ├── pages
+│   │   ├── services
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   │
+│   └── package.json
 │
-├── server/
-│   ├── config/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   ├── .env.example
-│   └── server.js
+├── server
+│   ├── controllers
+│   ├── middleware
+│   ├── models
+│   ├── routes
+│   ├── seedAdmin.js
+│   ├── server.js
+│   └── package.json
 │
 ├── .gitignore
 └── README.md
