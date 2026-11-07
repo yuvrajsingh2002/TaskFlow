@@ -1,23 +1,13 @@
-import User from "../models/User.js";
 
-const adminMiddleware = async (req, res, next) => {
-  try {
-    const user = await User.findById(req.user.id);
-
-    if (!user || user.role !== "admin") {
-      return res.status(403).json({
-        success: false,
-        message: "Admin access required",
-      });
-    }
-
-    next();
-  } catch (error) {
-    res.status(500).json({
+const adminMiddleware = (req, res, next) => {
+  if (!req.user || req.user.role !== "admin") {
+    return res.status(403).json({
       success: false,
-      message: error.message,
+      message: "Admin access required",
     });
   }
+
+  next();
 };
 
 export default adminMiddleware;

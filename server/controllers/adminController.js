@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import User from "../models/User.js";
 import Task from "../models/Task.js";
 import ActivityLog from "../models/ActivityLog.js";
@@ -38,6 +39,13 @@ export const getUserDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid User ID",
+      });
+    }
+
     const user = await User.findOne({
       _id: id,
       role: "user",
@@ -52,15 +60,11 @@ export const getUserDetails = async (req, res) => {
 
     const tasks = await Task.find({
       createdBy: id,
-    }).sort({
-      createdAt: -1,
-    });
+    }).sort({ createdAt: -1 });
 
     const activities = await ActivityLog.find({
       user: id,
-    }).sort({
-      createdAt: -1,
-    });
+    }).sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -68,7 +72,6 @@ export const getUserDetails = async (req, res) => {
       tasks,
       activities,
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -86,8 +89,20 @@ export const getAdminTaskDetails = async (req, res) => {
   try {
     const { userId, taskId } = req.params;
 
-    const user = await User.findById(userId)
-      .select("-password");
+    if (
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(taskId)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid User ID or Task ID",
+      });
+    }
+
+    const user = await User.findOne({
+      _id: userId,
+      role: "user",
+    }).select("-password");
 
     if (!user) {
       return res.status(404).json({
@@ -113,7 +128,6 @@ export const getAdminTaskDetails = async (req, res) => {
       user,
       task,
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -121,6 +135,7 @@ export const getAdminTaskDetails = async (req, res) => {
     });
   }
 };
+
 export const getAllActivityLogs = async (req, res) => {
   try {
 
@@ -155,7 +170,7 @@ export const getAdminActivities = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      count:activities.length,
+      count: activities.length,
       activities,
     });
 

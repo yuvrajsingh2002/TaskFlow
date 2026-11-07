@@ -1,3 +1,4 @@
+
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
@@ -13,6 +14,15 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       lowercase: true,
+      trim: true,
+    },
+
+    mobile: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      match: [/^[0-9]{10}$/, "Please enter a valid 10-digit mobile number"],
     },
 
     password: {
@@ -25,6 +35,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["user", "admin"],
       default: "user",
+    },
+    tokenVersion: {
+      type: Number,
+      default: 0,
     },
   },
   {

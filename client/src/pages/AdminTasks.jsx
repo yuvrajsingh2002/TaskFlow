@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import api from "../services/api";
@@ -17,7 +18,6 @@ function AdminTasks() {
   const [priorityFilter, setPriorityFilter] = useState("All");
 
   const [loading, setLoading] = useState(true);
-
   const [currentPage, setCurrentPage] = useState(1);
 
   const tasksPerPage = 6;
@@ -42,46 +42,46 @@ function AdminTasks() {
     }
   };
 
+  // Export Excel
   const handleExportExcel = () => {
-  if (tasks.length === 0) {
-    toast.error("No tasks available to export");
-    return;
-  }
+    if (tasks.length === 0) {
+      toast.error("No tasks available to export");
+      return;
+    }
 
-  const excelData = tasks.map((task, index) => ({
-    "S.No": index + 1,
-    "Title": task.title,
-    "Description": task.description || "",
-    "Priority": task.priority,
-    "Status": task.status,
-    "Due Date": task.dueDate
-      ? new Date(task.dueDate).toLocaleDateString()
-      : "",
-    "Created On": task.createdAt
-      ? new Date(task.createdAt).toLocaleDateString()
-      : "",
-    "Completed On": task.completedAt
-      ? new Date(task.completedAt).toLocaleDateString()
-      : "",
-  }));
+    const excelData = tasks.map((task, index) => ({
+      "S.No": index + 1,
+      "Title": task.title,
+      "Description": task.description || "",
+      "Priority": task.priority,
+      "Status": task.status,
+      "Due Date": task.dueDate
+        ? new Date(task.dueDate).toLocaleDateString()
+        : "",
+      "Created On": task.createdAt
+        ? new Date(task.createdAt).toLocaleDateString()
+        : "",
+      "Completed On": task.completedAt
+        ? new Date(task.completedAt).toLocaleDateString()
+        : "",
+    }));
 
-  const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
 
-  const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Admin Tasks"
+    );
 
-  XLSX.utils.book_append_sheet(
-    workbook,
-    worksheet,
-    "Admin Tasks"
-  );
+    XLSX.writeFile(
+      workbook,
+      "TaskFlow_Admin_Tasks.xlsx"
+    );
 
-  XLSX.writeFile(
-    workbook,
-    "TaskFlow_Admin_Tasks.xlsx"
-  );
-
-  toast.success("Tasks exported successfully");
-};
+    toast.success("Tasks exported successfully");
+  };
 
   useEffect(() => {
     fetchTasks();
@@ -90,13 +90,9 @@ function AdminTasks() {
   // Add task
   const handleAddTask = async (taskData) => {
     try {
-      const { data } = await api.post(
-        "/tasks",
-        taskData
-      );
+      const { data } = await api.post("/tasks", taskData);
 
       toast.success(data.message);
-
       setShowModal(false);
 
       fetchTasks();
@@ -117,7 +113,6 @@ function AdminTasks() {
       );
 
       toast.success(data.message);
-
       setEditingTask(null);
 
       fetchTasks();
@@ -138,9 +133,7 @@ function AdminTasks() {
     if (!confirmDelete) return;
 
     try {
-      const { data } = await api.delete(
-        `/tasks/${id}`
-      );
+      const { data } = await api.delete(`/tasks/${id}`);
 
       toast.success(data.message);
 
@@ -155,10 +148,9 @@ function AdminTasks() {
 
   // Filter
   const filteredTasks = tasks.filter((task) => {
-    const matchSearch =
-      task.title
-        .toLowerCase()
-        .includes(search.toLowerCase());
+    const matchSearch = task.title
+      .toLowerCase()
+      .includes(search.toLowerCase());
 
     const matchStatus =
       statusFilter === "All" ||
@@ -168,29 +160,20 @@ function AdminTasks() {
       priorityFilter === "All" ||
       task.priority === priorityFilter;
 
-    return (
-      matchSearch &&
-      matchStatus &&
-      matchPriority
-    );
+    return matchSearch && matchStatus && matchPriority;
   });
 
   // Reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [
-    search,
-    statusFilter,
-    priorityFilter,
-  ]);
+  }, [search, statusFilter, priorityFilter]);
 
   // Pagination
   const totalPages = Math.ceil(
     filteredTasks.length / tasksPerPage
   );
 
-  const startIndex =
-    (currentPage - 1) * tasksPerPage;
+  const startIndex = (currentPage - 1) * tasksPerPage;
 
   const currentTasks = filteredTasks.slice(
     startIndex,
@@ -198,266 +181,254 @@ function AdminTasks() {
   );
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <>
+      {/* Fixed full-width Navbar */}
+      <Navbar />
 
-      <AdminSidebar />
+      {/* Page below Navbar */}
+      <div className="pt-16 min-h-screen bg-gray-100">
+        <div className="flex min-h-[calc(100vh-4rem)]">
 
-      <div className="flex-1 p-8">
-        <Navbar/>
-        <div className="p-8">
+          {/* Admin Sidebar */}
+          <AdminSidebar />
 
-        {/* Header */}
-       <div className="flex justify-between items-center mb-8">
+          {/* Main Content */}
+          <main className="flex-1 min-w-0 p-8">
 
-  <h1 className="text-3xl font-bold">
-    Admin Tasks
-  </h1>
+            {/* Header */}
+            <div className="flex justify-between items-center mb-8">
 
-  <div className="flex gap-3">
+              <h1 className="text-3xl font-bold">
+                Admin Tasks
+              </h1>
 
-    {/* Excel */}
-    <button
-      onClick={handleExportExcel}
-      className="flex items-center gap-2 bg-green-600 text-white px-5 py-3 rounded-lg hover:bg-green-700"
-    >
-      <FaFileExcel />
-      Excel
-    </button>
+              <div className="flex gap-3">
 
-    {/* Add Task */}
-    <button
-      onClick={() => setShowModal(true)}
-      className="bg-blue-600 text-white px-5 py-3 rounded-lg hover:bg-blue-700"
-    >
-      + Add Task
-    </button>
+                {/* Excel */}
+                <button
+                  onClick={handleExportExcel}
+                  className="flex items-center gap-2 bg-green-600 text-white px-5 py-3 rounded-lg hover:bg-green-700"
+                >
+                  <FaFileExcel />
+                  Excel
+                </button>
 
-  </div>
+                {/* Add Task */}
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="bg-blue-600 text-white px-5 py-3 rounded-lg hover:bg-blue-700"
+                >
+                  + Add Task
+                </button>
 
-</div>
-        </div>
-
-        {/* Search & Filters */}
-        <div className="bg-white rounded-xl shadow p-5 mb-6">
-
-          <div className="flex flex-col lg:flex-row gap-4">
-
-            <input
-              type="text"
-              placeholder="Search task..."
-              value={search}
-              onChange={(e) =>
-                setSearch(e.target.value)
-              }
-              className="border border-gray-300 rounded-lg p-3 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-
-            <select
-              value={statusFilter}
-              onChange={(e) =>
-                setStatusFilter(e.target.value)
-              }
-              className="border border-gray-300 rounded-lg p-3"
-            >
-              <option>All</option>
-              <option>Pending</option>
-              <option>In Progress</option>
-              <option>Completed</option>
-            </select>
-
-            <select
-              value={priorityFilter}
-              onChange={(e) =>
-                setPriorityFilter(e.target.value)
-              }
-              className="border border-gray-300 rounded-lg p-3"
-            >
-              <option>All</option>
-              <option>High</option>
-              <option>Medium</option>
-              <option>Low</option>
-            </select>
-
-          </div>
-
-        </div>
-
-        {/* Tasks */}
-        <div className="bg-white rounded-xl shadow p-6">
-
-          {loading ? (
-            <p className="text-center py-10 text-gray-500">
-              Loading tasks...
-            </p>
-          ) : filteredTasks.length === 0 ? (
-
-            <div className="text-center py-12">
-
-              <div className="text-5xl mb-4">
-                📋
               </div>
-
-              <h2 className="text-xl font-semibold">
-                No Tasks Found
-              </h2>
-
-              <p className="text-gray-500 mt-2">
-                Create your first admin task.
-              </p>
-
             </div>
 
-          ) : (
+            {/* Search & Filters */}
+            <div className="bg-white rounded-xl shadow p-5 mb-6">
 
-            <div className="grid gap-4">
+              <div className="flex flex-col lg:flex-row gap-4">
 
-              {currentTasks.map((task) => (
+                <input
+                  type="text"
+                  placeholder="Search task..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="border border-gray-300 rounded-lg p-3 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
 
-                <div
-                  key={task._id}
-                  className="border border-gray-200 rounded-xl p-5 hover:shadow-md transition"
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="border border-gray-300 rounded-lg p-3"
                 >
+                  <option>All</option>
+                  <option>Pending</option>
+                  <option>In Progress</option>
+                  <option>Completed</option>
+                </select>
 
-                  <h2 className="text-xl font-bold">
-                    {task.title}
+                <select
+                  value={priorityFilter}
+                  onChange={(e) => setPriorityFilter(e.target.value)}
+                  className="border border-gray-300 rounded-lg p-3"
+                >
+                  <option>All</option>
+                  <option>High</option>
+                  <option>Medium</option>
+                  <option>Low</option>
+                </select>
+
+              </div>
+            </div>
+
+            {/* Tasks */}
+            <div className="bg-white rounded-xl shadow p-6">
+
+              {loading ? (
+                <p className="text-center py-10 text-gray-500">
+                  Loading tasks...
+                </p>
+              ) : filteredTasks.length === 0 ? (
+
+                <div className="text-center py-12">
+
+                  <div className="text-5xl mb-4">
+                    📋
+                  </div>
+
+                  <h2 className="text-xl font-semibold">
+                    No Tasks Found
                   </h2>
 
-                  <p className="text-gray-600 mt-2 line-clamp-3">
-                    {task.description}
+                  <p className="text-gray-500 mt-2">
+                    Create your first admin task.
                   </p>
-
-                  <div className="flex gap-3 mt-4">
-
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        task.priority === "High"
-                          ? "bg-red-100 text-red-700"
-                          : task.priority === "Medium"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-green-100 text-green-700"
-                      }`}
-                    >
-                      {task.priority}
-                    </span>
-
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        task.status === "Completed"
-                          ? "bg-green-100 text-green-700"
-                          : task.status === "In Progress"
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {task.status}
-                    </span>
-
-                  </div>
-                  {/* Date */}
-<div className="mt-4 text-gray-600">
-  📅{" "}
-  <span className="font-medium">
-    {task.status === "Completed"
-      ? "Completed On:"
-      : "Due Date:"}
-  </span>{" "}
-  {task.status === "Completed"
-    ? task.completedAt
-      ? new Date(task.completedAt).toLocaleDateString("en-IN")
-      : "Not available"
-    : task.dueDate
-    ? new Date(task.dueDate).toLocaleDateString("en-IN")
-    : "No due date"}
-</div>
-
-                  {/* Buttons */}
-                  <div className="flex gap-3 mt-5">
-
-                    <button
-                      onClick={() =>
-                        setEditingTask(task)
-                      }
-                      className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-                    >
-                      <FaEdit />
-                    </button>
-
-                    <button
-                      onClick={() =>
-                        handleDelete(task._id)
-                      }
-                      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                    >
-                      <FaTrash />
-                    </button>
-
-                  </div>
 
                 </div>
 
-              ))}
+              ) : (
 
-            </div>
-          )}
+                <div className="grid gap-4">
 
-          {/* Pagination */}
-          {totalPages > 1 && (
+                  {currentTasks.map((task) => (
 
-            <div className="flex justify-center items-center gap-2 mt-8">
+                    <div
+                      key={task._id}
+                      className="border border-gray-200 rounded-xl p-5 hover:shadow-md transition"
+                    >
 
-              <button
-                onClick={() =>
-                  setCurrentPage(
-                    (prev) => prev - 1
-                  )
-                }
-                disabled={currentPage === 1}
-                className="px-4 py-2 border rounded-lg disabled:opacity-50"
-              >
-                ← Previous
-              </button>
+                      <h2 className="text-xl font-bold">
+                        {task.title}
+                      </h2>
 
-              {Array.from(
-                { length: totalPages },
-                (_, index) => (
-                  <button
-                    key={index + 1}
-                    onClick={() =>
-                      setCurrentPage(index + 1)
-                    }
-                    className={`px-4 py-2 rounded-lg ${
-                      currentPage === index + 1
-                        ? "bg-blue-600 text-white"
-                        : "border hover:bg-gray-100"
-                    }`}
-                  >
-                    {index + 1}
-                  </button>
-                )
+                      <p className="text-gray-600 mt-2 line-clamp-3">
+                        {task.description}
+                      </p>
+
+                      <div className="flex gap-3 mt-4">
+
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            task.priority === "High"
+                              ? "bg-red-100 text-red-700"
+                              : task.priority === "Medium"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-green-100 text-green-700"
+                          }`}
+                        >
+                          {task.priority}
+                        </span>
+
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            task.status === "Completed"
+                              ? "bg-green-100 text-green-700"
+                              : task.status === "In Progress"
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {task.status}
+                        </span>
+
+                      </div>
+
+                      {/* Date */}
+                      <div className="mt-4 text-gray-600">
+                        📅{" "}
+                        <span className="font-medium">
+                          {task.status === "Completed"
+                            ? "Completed On:"
+                            : "Due Date:"}
+                        </span>{" "}
+
+                        {task.status === "Completed"
+                          ? task.completedAt
+                            ? new Date(task.completedAt).toLocaleDateString("en-IN")
+                            : "Not available"
+                          : task.dueDate
+                          ? new Date(task.dueDate).toLocaleDateString("en-IN")
+                          : "No due date"}
+                      </div>
+
+                      {/* Buttons */}
+                      <div className="flex gap-3 mt-5">
+
+                        <button
+                          onClick={() => setEditingTask(task)}
+                          className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+                        >
+                          <FaEdit />
+                        </button>
+
+                        <button
+                          onClick={() => handleDelete(task._id)}
+                          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                        >
+                          <FaTrash />
+                        </button>
+
+                      </div>
+
+                    </div>
+
+                  ))}
+
+                </div>
               )}
 
-              <button
-                onClick={() =>
-                  setCurrentPage(
-                    (prev) => prev + 1
-                  )
-                }
-                disabled={
-                  currentPage === totalPages
-                }
-                className="px-4 py-2 border rounded-lg disabled:opacity-50"
-              >
-                Next →
-              </button>
+              {/* Pagination */}
+              {totalPages > 1 && (
+
+                <div className="flex justify-center items-center gap-2 mt-8">
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) => prev - 1)
+                    }
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 border rounded-lg disabled:opacity-50"
+                  >
+                    ← Previous
+                  </button>
+
+                  {Array.from(
+                    { length: totalPages },
+                    (_, index) => (
+                      <button
+                        key={index + 1}
+                        onClick={() => setCurrentPage(index + 1)}
+                        className={`px-4 py-2 rounded-lg ${
+                          currentPage === index + 1
+                            ? "bg-blue-600 text-white"
+                            : "border hover:bg-gray-100"
+                        }`}
+                      >
+                        {index + 1}
+                      </button>
+                    )
+                  )}
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) => prev + 1)
+                    }
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 border rounded-lg disabled:opacity-50"
+                  >
+                    Next →
+                  </button>
+
+                </div>
+              )}
 
             </div>
-          )}
-
+          </main>
         </div>
-
       </div>
 
-      {/* Add Task */}
+      {/* Add Task Modal */}
       {showModal && (
         <AddTaskModal
           onClose={() => setShowModal(false)}
@@ -465,18 +436,15 @@ function AdminTasks() {
         />
       )}
 
-      {/* Edit Task */}
+      {/* Edit Task Modal */}
       {editingTask && (
         <AddTaskModal
-          onClose={() =>
-            setEditingTask(null)
-          }
+          onClose={() => setEditingTask(null)}
           onAddTask={handleUpdateTask}
           initialData={editingTask}
         />
       )}
-
-    </div>
+    </>
   );
 }
 

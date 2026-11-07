@@ -11,20 +11,20 @@ export const createTask = async (req, res) => {
     }
 
     const task = await Task.create({
-  title,
-  description,
-  priority,
-  status,
-  dueDate,
-  completedAt,
-  createdBy: req.user.id,
-});
+      title,
+      description,
+      priority,
+      status,
+      dueDate,
+      completedAt,
+      createdBy: req.user.id,
+    });
     await ActivityLog.create({
-  user: req.user.id,
-  action: "Created task",
-  task: task._id,
-  taskTitle: task.title,
-});
+      user: req.user.id,
+      action: "Created task",
+      task: task._id,
+      taskTitle: task.title,
+    });
 
     res.status(201).json({
       success: true,
@@ -41,7 +41,7 @@ export const createTask = async (req, res) => {
 
 export const getTasks = async (req, res) => {
   try {
-    
+
     const tasks = await Task.find({
       createdBy: req.user.id,
     }).sort({ createdAt: -1 });
@@ -84,7 +84,7 @@ export const getTaskById = async (req, res) => {
       });
     }
 
-    
+
 
     res.status(200).json({
       success: true,
@@ -100,17 +100,39 @@ export const getTaskById = async (req, res) => {
 };
 
 // Update Task
+
 export const updateTask = async (req, res) => {
   try {
+    // Allow only specific fields
+    const allowedFields = [
+      "title",
+      "description",
+      "priority",
+      "status",
+      "dueDate",
+    ];
 
-    const updateData = { ...req.body };
+    const updateData = {};
 
-    if (req.body.status === "Completed") {
-      updateData.completedAt = new Date();
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    });
+
+    // Update completedAt only when status is provided
+    if (req.body.status !== undefined) {
+      updateData.completedAt =
+        req.body.status === "Completed"
+          ? new Date()
+          : null;
     }
 
-    if (req.body.status !== "Completed") {
-      updateData.completedAt = null;
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No valid fields provided for update",
+      });
     }
 
     const task = await Task.findOneAndUpdate(
@@ -153,6 +175,8 @@ export const updateTask = async (req, res) => {
   }
 };
 
+
+
 // Delete Task
 export const deleteTask = async (req, res) => {
   try {
@@ -169,11 +193,11 @@ export const deleteTask = async (req, res) => {
     }
 
     await ActivityLog.create({
-  user: req.user.id,
-  action: "Deleted task",
-  task: task._id,
-  taskTitle: task.title,
-});
+      user: req.user.id,
+      action: "Deleted task",
+      task: task._id,
+      taskTitle: task.title,
+    });
 
     res.status(200).json({
       success: true,
